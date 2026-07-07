@@ -1,0 +1,10 @@
+.DS_Store
+.vercel
+.claude/
+
+# design/print assets kept local, not part of the deployed site
+/print/
+/*.png
+
+# claude code local tmp artifacts
+.claude/*.tmp.*

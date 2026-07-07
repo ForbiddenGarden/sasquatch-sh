@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snohomish Sasquatch Hackers//SSH Meetup//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ssh-first-meetup-20260718@sasquatch.sh
+DTSTAMP:20260706T000000Z
+DTSTART:20260718T180000Z
+DTEND:20260718T200000Z
+SUMMARY:SSH First Meetup — Snohomish Sasquatch Hackers
+LOCATION:Monroe Public Library\, Monroe\, WA
+DESCRIPTION:First meetup of the Snohomish Sasquatch Hackers (SSH). No membership required — just show up.
+URL:https://sasquatch.sh
+END:VEVENT
+END:VCALENDAR
