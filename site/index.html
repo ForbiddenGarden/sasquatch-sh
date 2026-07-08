@@ -203,6 +203,29 @@
       background: rgba(63,185,80,0.08);
     }
 
+    /* ── Signal QR ── */
+    .signal-qr {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .signal-qr img {
+      display: block;
+      background: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      width: 96px;
+      height: 96px;
+      flex-shrink: 0;
+    }
+    .signal-qr p {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      margin: 0;
+    }
+
     /* ── Footer ── */
     footer {
       position: relative;
@@ -351,9 +374,15 @@
 
     <div class="links">
       <a class="link-btn primary" href="mailto:sasquatchhackers@gmail.com">sasquatchhackers@gmail.com</a>
-      <!-- Add your links below — GitHub, Discord, Signal group, etc. -->
+      <a class="link-btn primary" href="https://signal.group/#CjQKIEU-T7LTNPcck9zUlju3x1Q95vPnWW8QPJWTXITe_3KVEhA8J6-OrG7cTKo3R1ML0cgO" target="_blank" rel="noopener">signal group</a>
+      <!-- Add your links below — GitHub, Discord, etc. -->
       <!-- <a class="link-btn" href="https://github.com/snohomish-sasquatch-hackers">GitHub</a> -->
       <!-- <a class="link-btn" href="https://discord.gg/YOUR_INVITE">Discord</a> -->
+    </div>
+
+    <div class="signal-qr">
+      <img src="signal-qr.svg" alt="QR code linking to the SSH Signal group" width="96" height="96">
+      <p>Scan to join the Signal group from your phone.</p>
     </div>
   </section>
 </main>
