@@ -1,6 +1,9 @@
 .DS_Store
 .vercel
 .claude/
+.env
+.env.local
+.env*.local
 
 # design/print assets kept local, not part of the deployed site
 /print/

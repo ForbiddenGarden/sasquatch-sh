@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>◤◢◤ 1NTRU5I0N D3T3CT3D ◤◢◤</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #000;
+      color: #0f0;
+      font-family: 'Comic Sans MS', 'Courier New', monospace;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    canvas#rain {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px 60px;
+      text-align: center;
+    }
+
+    .marquee-wrap {
+      width: 100%;
+      background: #ff0000;
+      color: #ffff00;
+      font-weight: bold;
+      font-size: 15px;
+      padding: 6px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      border-top: 3px dashed #fff;
+      border-bottom: 3px dashed #fff;
+      margin-bottom: 24px;
+    }
+    .marquee-track {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll 14s linear infinite;
+    }
+    @keyframes scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    @keyframes flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+    @keyframes rainbow {
+      0%   { color: #ff0044; }
+      16%  { color: #ff8800; }
+      33%  { color: #ffee00; }
+      50%  { color: #00ff44; }
+      66%  { color: #00ccff; }
+      83%  { color: #aa00ff; }
+      100% { color: #ff0044; }
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(-1.5deg) scale(1); }
+      50%      { transform: rotate(1.5deg) scale(1.03); }
+    }
+
+    .skull {
+      white-space: pre;
+      font-size: 10px;
+      line-height: 1.15;
+      color: #0f0;
+      text-shadow: 0 0 8px #0f0;
+      margin-bottom: 10px;
+      animation: flash 1.4s step-end infinite;
+    }
+
+    h1 {
+      font-size: clamp(28px, 7vw, 56px);
+      animation: rainbow 2.5s linear infinite, wiggle 0.6s ease-in-out infinite;
+      text-shadow: 3px 3px 0 #000;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .blink { animation: flash 0.6s step-end infinite; }
+
+    h2 {
+      font-size: clamp(14px, 3vw, 20px);
+      color: #ff00ff;
+      margin: 14px 0 24px;
+      text-shadow: 0 0 10px #ff00ff;
+    }
+
+    .terminal {
+      background: #000;
+      border: 2px solid #0f0;
+      box-shadow: 0 0 20px #0f0, inset 0 0 20px rgba(0,255,0,0.1);
+      width: 100%;
+      max-width: 560px;
+      padding: 18px 20px;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.9;
+      margin-bottom: 28px;
+    }
+    .terminal .line { white-space: pre-wrap; }
+    .ok    { color: #0f0; }
+    .warn  { color: #ff0; }
+    .fail  { color: #f33; }
+    .cur   { display:inline-block; width:7px; height:12px; background:#0f0; vertical-align:middle; animation: flash 0.5s step-end infinite; }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .badge {
+      border: 2px solid #fff;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: bold;
+      background: repeating-linear-gradient(45deg, #ff0, #ff0 8px, #000 8px, #000 16px);
+      color: #000;
+      -webkit-text-stroke: 0.5px #fff;
+      transform: rotate(-3deg);
+    }
+    .badge:nth-child(2) { transform: rotate(2deg); }
+    .badge:nth-child(3) { transform: rotate(-1deg); }
+
+    .counter {
+      font-size: 13px;
+      color: #0ff;
+      text-shadow: 0 0 8px #0ff;
+      margin-bottom: 28px;
+    }
+    .counter b { font-size: 22px; }
+
+    .roast {
+      max-width: 560px;
+      font-size: 13px;
+      color: #ccc;
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+    .roast strong { color: #0f0; }
+
+    .btn-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    a.btn {
+      display: inline-block;
+      background: #000;
+      color: #0f0;
+      border: 2px outset #0f0;
+      padding: 12px 20px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: bold;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+    a.btn:active { border-style: inset; }
+    a.btn:hover { background: #0f0; color: #000; }
+
+    .under-construction {
+      margin-top: 40px;
+      font-size: 11px;
+      color: #ff0;
+      letter-spacing: 0.15em;
+    }
+
+    .visitors {
+      margin-top: 10px;
+      font-size: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+
+<div class="content">
+  <div class="marquee-wrap">
+    <span class="marquee-track">
+      *** YOU HAVE BEEN 1337 HACKED BY THE SASQUATCH *** JK IT'S JUST US *** NICE TRY THOUGH *** THIS INCIDENT WILL BE REPORTED TO NOBODY *** YOUR IP HAS NOT BEEN LOGGED BECAUSE WE DON'T DO THAT *** GO TOUCH GRASS *** &nbsp;&nbsp;&nbsp;&nbsp;
+    </span>
+  </div>
+
+  <pre class="skull" aria-hidden="true">
+     .ed"""" """$$$$be.
+   -"           ^""**$$$e.
+ ."                   '$$$c
+/                        "4$$b
+d  3                       $$$$
+$  *                   .$$$$$$
+$  '$              ."$$$$$$$$$
+$$b .$            $$$$$$$$$$$$
+$$$$$b.        .$$$$$$$$$$$$$$
+"$$$$$$$$$e....$$$$$$$$$$$$$$P
+ "$$$$$$$$$$$$$$$$$$$$$$$$$$"
+  "$$$$$$$$$$$$$$$$$$$$$$$$"
+    "$$$$$$$$$$$$$$$$$$$$"
+        """$$$$$$$$$""</pre>
+
+  <h1>ACCESS <span class="blink">DENIED</span></h1>
+  <h2>&gt;&gt;&gt; script kiddie detected &lt;&lt;&lt;</h2>
+
+  <div class="terminal">
+    <div class="line ok">$ nmap -sS -A sasquatch.sh</div>
+    <div class="line">Starting brute-force sequence...</div>
+    <div class="line warn">[####______________] trying '<span id="guess"></span>'...</div>
+    <div class="line fail">FAILED. how did you even think that would work</div>
+    <div class="line">Rerouting through 7 proxies in Belarus...</div>
+    <div class="line warn">Deploying counter-hack.exe...</div>
+    <div class="line ok">Counter-hack.exe not found. We don't have one.</div>
+    <div class="line">Notifying the Elders of the Forest...</div>
+    <div class="line ok">Elders unavailable, currently at the meetup.</div>
+    <div class="line">Session terminated.<span class="cur"></span></div>
+  </div>
+
+  <div class="badge-row">
+    <span class="badge">100% HACKER</span>
+    <span class="badge">MADE WITH FRONTPAGE</span>
+    <span class="badge">L33T STATUS</span>
+  </div>
+
+  <div class="counter">visitor #<b id="hits">1337</b> to be roasted here</div>
+
+  <p class="roast">
+    Look, we appreciate the effort, but <strong>"password"</strong>,
+    <strong>"changeme"</strong>, and friends were retired as attack vectors
+    sometime around 2004. The real slides are behind an actual server-side
+    gate — this page is just here for comic relief and to make you feel
+    something. Ask literally anyone at the meetup for the real code.
+  </p>
+
+  <div class="btn-row">
+    <a class="btn" href="deck.html">&larr; try again, script kiddie</a>
+    <a class="btn" href="index.html">back to safety</a>
+  </div>
+
+  <div class="under-construction">🚧 THIS PAGE IS UNDER CONSTRUCTION 🚧</div>
+  <div class="visitors">best viewed in Netscape Navigator at 800x600</div>
+</div>
+
+<script>
+  // fake password-guess readout, pulled from whatever they typed on the gate
+  (function () {
+    var guessed = 'password';
+    try {
+      var stored = sessionStorage.getItem('ssh_last_guess');
+      if (stored) guessed = stored;
+    } catch (e) {}
+    document.getElementById('guess').textContent = guessed;
+  })();
+
+  // rising fake visitor counter, because every good geocities page has one
+  (function () {
+    var el = document.getElementById('hits');
+    var n = 1337;
+    setInterval(function () {
+      n += Math.floor(Math.random() * 3);
+      el.textContent = n;
+    }, 800);
+  })();
+
+  // matrix rain
+  (function () {
+    var c = document.getElementById('rain');
+    var ctx = c.getContext('2d');
+    var chars = 'アカサタナハマヤラワ0123456789日ハ十匕チ二丂个人';
+    var fontSize = 15;
+    var columns, drops;
+
+    function resize() {
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+      columns = Math.floor(c.width / fontSize);
+      drops = new Array(columns).fill(1);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.fillStyle = '#0f0';
+      ctx.font = fontSize + 'px monospace';
+      for (var i = 0; i < drops.length; i++) {
+        var text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > c.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 50);
+  })();
+</script>
+</body>
+</html>
