@@ -12,7 +12,8 @@ Founded May 2026, Marysville, WA by Nelson.
 |----------|---------|
 | `CHARTER.md` | Founding charter — mission, principles, IP policy, governance |
 | `site/index.html` | Static landing page for sasquatch.sh (single file, no build step) |
-| `site/first-meetup.ics` | Downloadable calendar invite for the first meetup |
+| `site/first-meetup.ics` | Calendar invite for the July 18 first meetup (past) |
+| `site/defcon-debrief.ics` | Calendar invite for the Aug 22 DEF CON debrief meetup |
 | `vercel.json` | Tells Vercel to serve `site/` as the static output (zero build step) |
 
 ## Repo / Deploy
@@ -43,7 +44,8 @@ python3 -m http.server 8888
 - **Full name**: Snohomish Sasquatch Hackers (SSH)
 - **Coverage area**: Marysville, Arlington, Lake Stevens, Snohomish, Northern Everett
 - **Meetup venue**: Snohomish County Library community spaces
-- **First meetup**: Saturday, July 18, 2026, 11:00 AM — Monroe Public Library, Monroe, WA
+- **First meetup**: Saturday, July 18, 2026, 11:00 AM — Monroe Public Library, Monroe, WA (past)
+- **Next meetup**: Saturday, August 22, 2026, 12:00–2:00 PM — Monroe Public Library, Monroe, WA — DEF CON debrief
 - **Membership**: None required — show up and participate
 - **IP policy**: Members own their work; group projects → SSH GitHub org under MIT
 - **Governance**: Rough consensus, no officers, no votes unless group decides otherwise

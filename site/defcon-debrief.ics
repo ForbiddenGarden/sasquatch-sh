@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snohomish Sasquatch Hackers//SSH Meetup//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ssh-defcon-debrief-20260822@sasquatch.sh
+DTSTAMP:20260811T000000Z
+DTSTART:20260822T190000Z
+DTEND:20260822T210000Z
+SUMMARY:SSH Meetup: DEF CON Debrief — Snohomish Sasquatch Hackers
+LOCATION:Monroe Public Library\, Monroe\, WA
+DESCRIPTION:DEF CON debrief with the Snohomish Sasquatch Hackers (SSH). Ta
+ lks\, takeaways\, and hallway-con highlights. No membership required —
+  just show up.
+URL:https://sasquatch.sh
+END:VEVENT
+END:VCALENDAR
