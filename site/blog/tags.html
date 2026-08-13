@@ -1,0 +1,38 @@
+---
+layout: default
+title: Tags
+permalink: /blog/tags/
+description: "Every tag used across the SSH blog."
+---
+<section class="wrap">
+  <div class="section-label">Tags</div>
+  <h1 class="page-title">Tags</h1>
+
+  {%- if site.tags.size > 0 %}
+  <ul class="tags" style="margin-top:20px;">
+    {%- assign all_tags = site.tags | sort %}
+    {%- for t in all_tags %}
+    <li><a class="tag" href="#{{ t[0] | slugify }}">{{ t[0] }} ({{ t[1].size }})</a></li>
+    {%- endfor %}
+  </ul>
+
+  <div style="margin-top:36px;">
+    {%- for t in all_tags %}
+    <div class="tag-group" id="{{ t[0] | slugify }}">
+      <h2>{{ t[0] }}</h2>
+      <ul>
+        {%- for post in t[1] %}
+        <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a><span class="date">{{ post.date | date: "%b %-d, %Y" }}</span></li>
+        {%- endfor %}
+      </ul>
+    </div>
+    {%- endfor %}
+  </div>
+  {%- else %}
+  <div class="empty" style="margin-top:24px;">No tags yet.</div>
+  {%- endif %}
+
+  <div class="links">
+    <a class="link-btn primary" href="{{ '/blog/' | relative_url }}">&larr; all posts</a>
+  </div>
+</section>

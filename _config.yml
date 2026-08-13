@@ -1,0 +1,38 @@
+# SSH — Snohomish Sasquatch Hackers
+# Jekyll builds site/ -> _site/. The landing page, deck, slides and .ics files
+# have no front matter, so Jekyll copies them through byte-for-byte.
+
+title: "SSH — Snohomish Sasquatch Hackers"
+description: "An open, community-run cybersecurity group in Northern Snohomish County, WA."
+url: "https://sasquatch.sh"
+lang: en
+
+source: site
+destination: _site
+
+timezone: America/Los_Angeles
+permalink: /blog/:year/:month/:day/:title/
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+plugins:
+  - jekyll-feed
+
+feed:
+  path: blog/feed.xml
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+
+exclude:
+  - .jekyll-cache
+  - vendor

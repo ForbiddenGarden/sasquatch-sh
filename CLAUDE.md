@@ -11,33 +11,46 @@ Founded May 2026, Marysville, WA by Nelson.
 | File/Dir | Purpose |
 |----------|---------|
 | `CHARTER.md` | Founding charter — mission, principles, IP policy, governance |
-| `site/index.html` | Static landing page for sasquatch.sh (single file, no build step) |
+| `_config.yml` | Jekyll config — builds `site/` → `_site/` |
+| `Gemfile` | Jekyll + jekyll-feed. `Gemfile.lock` must include the `x86_64-linux` platform |
+| `site/index.html` | Landing page — hand-written HTML, embedded CSS, no front matter |
+| `site/_layouts/` | `default` (shell), `blog` (post list), `post` (single post) |
+| `site/_posts/` | Blog posts, markdown, `YYYY-MM-DD-slug.md` |
+| `site/_drafts/example-post.md` | Copy-paste template for new posts (not published) |
+| `site/blog/index.html` | Blog index; `site/blog/tags.html` → `/blog/tags/` |
+| `site/assets/css/blog.css` | Blog styles — palette tokens duplicated from `index.html` |
 | `site/first-meetup.ics` | Calendar invite for the July 18 first meetup (past) |
 | `site/defcon-debrief.ics` | Calendar invite for the Aug 22 DEF CON debrief meetup |
-| `vercel.json` | Tells Vercel to serve `site/` as the static output (zero build step) |
+| `middleware.js` | Vercel edge middleware password-gating `/slides.html` |
+| `vercel.json` | Vercel build config — `bundle exec jekyll build`, output `_site` |
 
 ## Repo / Deploy
 
 - GitHub: `github.com/ForbiddenGarden/sasquatch-sh` (public)
 - Hosting: Vercel, deployed from this repo; DNS for `sasquatch.sh` points at Vercel
-- No build step — pushing to the deploy branch is enough
+- Build: Jekyll (`bundle exec jekyll build`), output `_site/`. Pushing to the deploy branch ships it.
 
-## Landing Page
+## Site Structure
 
-Single HTML file with embedded CSS — no framework, no JS dependencies, no build process.  
-Deploy by copying `site/index.html` to any static host (GitHub Pages, Netlify, Cloudflare Pages, S3).
+Jekyll builds `site/` → `_site/`. Only markdown posts and files **with front matter**
+get processed; `index.html`, `deck.html`, `slides.html`, `prank.html`, `.ics` and
+images have no front matter, so Jekyll copies them through untouched. The landing
+page stays a single self-contained HTML file with embedded CSS — keep it that way.
 
-**Before publishing, fill in:**
-- Email contact uses `sasquatchhackers@gmail.com`
-- Uncomment and fill GitHub org link when created
-- Uncomment and fill Discord/Signal/etc. invite when set up
+The blog reuses the landing page's terminal aesthetic via `site/assets/css/blog.css`.
+The palette tokens there are **duplicated** from `index.html`'s `<style>` block, so
+that `index.html` stays dependency-free. Change a colour in one, change it in both.
 
-**To preview locally:**
+**To preview locally** (needs `sudo apt install ruby-dev build-essential` once):
 ```bash
-cd /home/nelson/projects/lcl_sec_grp/site
-python3 -m http.server 8888
-# open http://localhost:8888
+cd /home/nelson/projects/lcl_sec_grp
+bundle exec jekyll serve --drafts --livereload
+# open http://localhost:4000
 ```
+
+**Writing a post:** copy `site/_drafts/example-post.md` to
+`site/_posts/YYYY-MM-DD-slug.md`, fill in front matter, open a PR. Tag pages
+(`/blog/tags/`) and the RSS feed (`/blog/feed.xml`) generate automatically.
 
 ## Key Facts (for context in any session)
 
