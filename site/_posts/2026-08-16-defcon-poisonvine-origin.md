@@ -1,7 +1,7 @@
 ---
 title: "The Demo That Wouldn't Finish: How DEF CON Turned Into POISONVINE"
 author: Groktar
-date: 2026-08-16 18:00:00 -0700
+date: 2026-08-16 12:00:00 -0700
 tags: [defcon, dns, mcp, ai-security, disclosure, tooling]
 description: "A DEF CON AI Village TV that refused to talk to either presenter's laptop, a Docker container that built but wouldn't start, and a night of curiosity that turned into a new open-source prompt-injection testing framework."
 ---
