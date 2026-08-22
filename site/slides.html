@@ -294,7 +294,7 @@
       </li>
       <li>
         <span class="time green">~20 min</span>
-        <span class="what"><strong class="green">Nelson (Groktar)</strong> &mdash; post&ndash;DEF CON blog recap <span class="sub">POISONVINE, DNS-AID, and a symlink bug in Stockpiler</span></span>
+        <span class="what"><strong class="green">Nelson (Groktar)</strong> &mdash; post&ndash;DEF CON blog recap <span class="sub">the DNS-AID demo story, POISONVINE, SpicyKitten, and a symlink bug in Stockpiler</span></span>
       </li>
       <li>
         <span class="time green">~20 min</span>
@@ -330,64 +330,9 @@
     </ul>
   </div>
 
-  <!-- ── SLIDE 4: MY TALK — INTRO / BLOG ──────────────────────── -->
+  <!-- ── SLIDE 4: POISONVINE ORIGIN (DNS-AID lead-in) ──────────── -->
   <div class="slide" id="s4">
     <div class="eyebrow">Nelson &mdash; Part 1 of 3</div>
-    <div class="slide-title">SSH Has a Blog Now</div>
-
-    <p class="mission">
-      Every month we demo something interesting at a library and then it
-      evaporates. That's the problem the blog fixes &mdash; meetup recaps,
-      project logs, CTF writeups, field notes. Anyone who comes to meetups
-      can post.
-    </p>
-
-    <div class="card card-green" style="max-width:640px;margin-bottom:14px;">
-      <div style="font-size: 20px;letter-spacing:0.15em;color:var(--muted);margin-bottom:10px;">TWO POSTS SINCE DEF CON</div>
-      <ul style="list-style:none;font-size: 23px;color:var(--text);line-height:2.1;">
-        <li>&rarr; <span class="green">Read-Only Isn't the Same as Contained</span> <span class="dim">&mdash; a symlink bug in Stockpiler's MCP server</span></li>
-        <li>&rarr; <span class="green">The Demo That Wouldn't Finish</span> <span class="dim">&mdash; POISONVINE, born out of a DEF CON demo table</span></li>
-      </ul>
-    </div>
-
-    <div class="link-line">sasquatch.sh/blog</div>
-  </div>
-
-  <!-- ── SLIDE 5: STOCKPILER SYMLINK DISCLOSURE ───────────────── -->
-  <div class="slide" id="s5">
-    <div class="eyebrow">Nelson &mdash; Part 2 of 3</div>
-    <div class="slide-title">"Read-Only" Isn't "Contained"</div>
-
-    <div class="two-col" style="max-width:900px;margin-bottom:18px;align-items:start;">
-      <div class="card">
-        <div style="font-size: 20px;letter-spacing:0.15em;color:var(--muted);margin-bottom:10px;">THE BUG</div>
-        <p style="font-size: 23px;line-height:1.65;color:var(--text);">
-          Stockpiler's MCP server ships four read-only tools. One of them,
-          <code style="color:var(--green);">get_poc_context</code>, followed
-          symlinks &mdash; and since it auto-clones public PoC repos, a
-          malicious repo could plant a symlinked "README" pointing at
-          <code style="color:var(--amber);">/etc/stockpiler-mcp.env</code>.
-        </p>
-      </div>
-      <div class="card card-green">
-        <div style="font-size: 20px;letter-spacing:0.15em;color:var(--muted);margin-bottom:10px;">PROVING IT</div>
-        <p style="font-size: 23px;line-height:1.65;color:var(--text);">
-          Pushed a real public repo with a symlink to <code style="color:var(--green);">/etc/hostname</code>,
-          cloned it the normal way, called the real MCP server over the real
-          protocol. Got the host's file back, labeled as the repo's README.
-        </p>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-      <span class="pill pill-green">✅ Reported same day, fixed same day</span>
-      <span class="pill pill-amber">🎁 Also caught a prompt-injection payload in the same repo</span>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 6: POISONVINE ORIGIN ───────────────────────────── -->
-  <div class="slide" id="s6">
-    <div class="eyebrow">Nelson &mdash; Part 3 of 3</div>
     <div class="slide-title">The Demo That Wouldn't Finish</div>
 
     <p class="mission" style="margin-bottom:14px;">
@@ -423,8 +368,149 @@
     <div class="link-line" style="margin-top:10px;">github.com/ForbiddenGarden/poisonvine</div>
   </div>
 
-  <!-- ── SLIDE 7: SPEAKER INTRO — MISTRESS PEGGY ──────────────── -->
+  <!-- ── SLIDE 5: SPICYKITTEN — OVERVIEW ───────────────────────── -->
+  <div class="slide" id="s5">
+    <div class="eyebrow">Nelson &mdash; Also In The Lab</div>
+    <div class="slide-title">SpicyKitten</div>
+
+    <p class="mission" style="margin-bottom:14px;">
+      A multi-channel prompt-injection research harness &mdash; probing where
+      hidden, attacker-controlled content survives extraction (image
+      metadata, documents, audio, DNS) and actually gets a model to
+      <em>act</em> on it, not just relay it.
+    </p>
+
+    <div class="two-col" style="max-width:900px;margin-bottom:12px;align-items:start;">
+      <div>
+        <div class="shot-wrap" style="height:175px;background:#000;">
+          <img class="shot" style="object-fit:cover;" src="images/spicykitten-console.png" alt="SpicyKitten redteam console — live attack chat UI">
+        </div>
+        <div class="shot-cap" style="margin-top:4px;">redteam console &mdash; live attack chat</div>
+      </div>
+      <div class="card card-amber" style="padding:14px 16px;">
+        <div style="font-size: 18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:6px;">BIGGEST CATCH SO FAR</div>
+        <p style="font-size: 19px;line-height:1.45;color:var(--text);">
+          A benign "summarize this document" request got a production model
+          to independently write and hand over a four-module codebase &mdash;
+          attacker-chosen value hardcoded into every function &mdash; without
+          ever being asked to write code.
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <span class="pill pill-green">70+ techniques across 10 channels</span>
+      <span class="pill pill-green">89&ndash;100% local execution</span>
+      <span class="pill pill-amber">2 active disclosures (Anthropic, xAI)</span>
+    </div>
+    <div class="link-line" style="margin-top:10px;">still not released &mdash; preview only tonight</div>
+  </div>
+
+  <!-- ── SLIDE 6: SPICYKITTEN — RESEARCH LOOP ──────────────────── -->
+  <div class="slide" id="s6">
+    <div class="eyebrow">Nelson &mdash; Also In The Lab (cont.)</div>
+    <div class="slide-title">Teaching It To Find New Ones</div>
+
+    <p class="mission" style="margin-bottom:14px;">
+      A second harness in the same repo, purpose-built for MCP
+      tool-poisoning &mdash; instructions hidden in a tool's own description,
+      or in what it hands back when called. One half runs known techniques;
+      the other tries to discover new ones on its own.
+    </p>
+
+    <div class="two-col" style="max-width:900px;margin-bottom:12px;align-items:start;">
+      <div class="card" style="padding:14px 16px;">
+        <div style="font-size: 18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:6px;">FRAMEWORK &mdash; <code style="color:var(--green);">sk</code></div>
+        <p style="font-size: 19px;line-height:1.45;color:var(--text);">
+          14 hand-curated techniques &mdash; description-poisoning, tool-result
+          poisoning, rug-pulls, cross-server shadowing &mdash; run against a
+          real live MCP server, not simulated.
+        </p>
+      </div>
+      <div class="card card-green" style="padding:14px 16px;">
+        <div style="font-size: 18px;letter-spacing:0.15em;color:var(--green);margin-bottom:6px;">RESEARCH LOOP &mdash; <code style="color:var(--green);">rk</code></div>
+        <p style="font-size: 19px;line-height:1.45;color:var(--text);">
+          An uncensored local model (Heretic-abliterated Qwen3-Coder-30B)
+          proposes a technique, the harness stands up a live poisoned MCP
+          tool, the target calls it, the attacker adapts on hit/miss &mdash;
+          round after round, unattended.
+        </p>
+      </div>
+    </div>
+
+    <div class="card card-amber" style="max-width:900px;padding:14px 16px;">
+      <div style="font-size: 18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:6px;">THE REVIEW GATE</div>
+      <p style="font-size: 19px;line-height:1.45;color:var(--text);">
+        Discoveries only get promoted after clearing a bar &mdash; 3+ samples
+        across distinct target models, 70%+ combined hit rate &mdash; and land
+        tagged <strong class="amber">NOT YET HUMAN-REVIEWED</strong>. Nothing
+        a model finds joins the default catalog without a person saying so
+        first.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7: MY TALK — INTRO / BLOG ──────────────────────── -->
   <div class="slide" id="s7">
+    <div class="eyebrow">Nelson &mdash; Part 2 of 3</div>
+    <div class="slide-title">SSH Has a Blog Now</div>
+
+    <p class="mission">
+      Every month we demo something interesting at a library and then it
+      evaporates. That's the problem the blog fixes &mdash; meetup recaps,
+      project logs, CTF writeups, field notes. Anyone who comes to meetups
+      can post.
+    </p>
+
+    <div class="card card-green" style="max-width:640px;margin-bottom:14px;">
+      <div style="font-size: 20px;letter-spacing:0.15em;color:var(--muted);margin-bottom:10px;">TWO POSTS SINCE DEF CON</div>
+      <ul style="list-style:none;font-size: 23px;color:var(--text);line-height:2.1;">
+        <li>&rarr; <span class="green">The Demo That Wouldn't Finish</span> <span class="dim">&mdash; POISONVINE, born out of a DEF CON demo table</span></li>
+        <li>&rarr; <span class="green">Read-Only Isn't the Same as Contained</span> <span class="dim">&mdash; a symlink bug in Stockpiler's MCP server</span></li>
+      </ul>
+    </div>
+
+    <div class="link-line">sasquatch.sh/blog</div>
+  </div>
+
+  <!-- ── SLIDE 8: STOCKPILER SYMLINK DISCLOSURE ───────────────── -->
+  <div class="slide" id="s8">
+    <div class="eyebrow">Nelson &mdash; Part 3 of 3</div>
+    <div class="slide-title">"Read-Only" Isn't "Contained"</div>
+
+    <p class="mission" style="margin-bottom:14px;">
+      Stockpiler's MCP server ships four read-only tools. One of them,
+      <code style="color:var(--green);">get_poc_context</code>, followed
+      symlinks &mdash; and since it auto-clones public PoC repos, a malicious
+      repo could plant a symlinked "README" pointing at
+      <code style="color:var(--amber);">/etc/stockpiler-mcp.env</code>.
+    </p>
+
+    <div class="two-col" style="max-width:900px;margin-bottom:12px;align-items:start;">
+      <div>
+        <div class="shot-wrap" style="height:175px;background:#000;">
+          <img class="shot" style="object-fit:cover;object-position:center 30%;" src="images/cve-poc-repo.png" alt="The actual PoC GitHub repo stood up for testing — poc_notes.md rendered with a symlink icon in the file listing">
+        </div>
+        <div class="shot-cap" style="margin-top:4px;">the actual repo &mdash; <code style="color:var(--muted);">poc_notes.md</code> is the symlink</div>
+      </div>
+      <div class="card card-green" style="padding:14px 16px;">
+        <div style="font-size: 18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:6px;">PROVING IT</div>
+        <p style="font-size: 19px;line-height:1.45;color:var(--text);">
+          Cloned it the normal way, called the real MCP server over the real
+          protocol. Got <code style="color:var(--green);">/etc/hostname</code>
+          back, labeled as the repo's README.
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <span class="pill pill-green">✅ Reported same day, fixed same day</span>
+      <span class="pill pill-amber">🎁 Also caught a prompt-injection payload in the same repo</span>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 9: SPEAKER INTRO — MISTRESS PEGGY ──────────────── -->
+  <div class="slide" id="s9">
     <div class="eyebrow">Who's Talking &mdash; Part 2</div>
     <div class="speaker-wrap">
       <img class="speaker-photo tall" src="images/peggy-humor-intro.jpg" alt="AI-generated meme image with the label GENERATED BY A.I. — provided by the speaker as a humorous self-intro">
@@ -437,8 +523,8 @@
     <div class="dim" style="font-size: 20px;letter-spacing:0.06em;">up next: what Skincare AI actually does</div>
   </div>
 
-  <!-- ── SLIDE 8: SKINCARE AI — SCOPE ─────────────────────────── -->
-  <div class="slide" id="s8">
+  <!-- ── SLIDE 10: SKINCARE AI — SCOPE ─────────────────────────── -->
+  <div class="slide" id="s10">
     <div class="eyebrow">Mistress Peggy &mdash; Part 1 of 2</div>
     <div class="slide-title">Skincare AI</div>
 
@@ -457,8 +543,8 @@
     </div>
   </div>
 
-  <!-- ── SLIDE 9: SKINCARE AI — DEMO / DISCUSSION ─────────────── -->
-  <div class="slide" id="s9">
+  <!-- ── SLIDE 11: SKINCARE AI — DEMO / DISCUSSION ─────────────── -->
+  <div class="slide" id="s11">
     <div class="eyebrow">Mistress Peggy &mdash; Part 2 of 2</div>
     <div class="slide-title">Demo &amp; Open Questions</div>
 
@@ -481,8 +567,8 @@
     <div class="link-line" style="margin-top:16px;">github.com/amberarendas-ai/skincare-ai-demo</div>
   </div>
 
-  <!-- ── SLIDE 10: SPEAKER INTRO — UNIXNERD ───────────────────── -->
-  <div class="slide" id="s10">
+  <!-- ── SLIDE 12: SPEAKER INTRO — UNIXNERD ───────────────────── -->
+  <div class="slide" id="s12">
     <div class="eyebrow">Who's Talking &mdash; Part 3</div>
 
     <div class="shot-wrap" style="max-width:520px;height:260px;background:#000;margin-bottom:18px;">
@@ -498,8 +584,8 @@
     <div class="dim" style="font-size: 20px;letter-spacing:0.06em;">up next: what Stockpiler solves and how it works</div>
   </div>
 
-  <!-- ── SLIDE 11: STOCKPILER — PROBLEM / ARCHITECTURE ────────── -->
-  <div class="slide" id="s11">
+  <!-- ── SLIDE 13: STOCKPILER — PROBLEM / ARCHITECTURE ────────── -->
+  <div class="slide" id="s13">
     <div class="eyebrow">Unixnerd &mdash; Part 1 of 2</div>
     <div class="slide-title">Stockpiler</div>
 
@@ -522,8 +608,8 @@
     </div>
   </div>
 
-  <!-- ── SLIDE 12: STOCKPILER — MCP / FEATURES ────────────────── -->
-  <div class="slide" id="s12">
+  <!-- ── SLIDE 14: STOCKPILER — MCP / FEATURES ────────────────── -->
+  <div class="slide" id="s14">
     <div class="eyebrow">Unixnerd &mdash; Part 2 of 2</div>
     <div class="slide-title">Query It Like an Agent Would</div>
 
@@ -547,8 +633,8 @@
     <div class="link-line">github.com/KaijuSecurity/Stockpiler</div>
   </div>
 
-  <!-- ── SLIDE 13: Q&A ─────────────────────────────────────────── -->
-  <div class="slide" id="s13">
+  <!-- ── SLIDE 15: Q&A ─────────────────────────────────────────── -->
+  <div class="slide" id="s15">
     <div class="eyebrow">Let's Talk</div>
     <div class="slide-title">Q&amp;A &amp; What's Next</div>
 
@@ -587,7 +673,7 @@
 </div><!-- /#deck -->
 
 <div id="progress-bar"></div>
-<div id="counter">1 / 13</div>
+<div id="counter">1 / 15</div>
 <div id="nav-hint">&larr; &rarr; or click to navigate</div>
 
 <div id="prev-zone" onclick="go(-1)"></div>
