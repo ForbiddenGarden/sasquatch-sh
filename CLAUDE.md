@@ -20,7 +20,8 @@ Founded May 2026, Marysville, WA by Nelson.
 | `site/blog/index.html` | Blog index; `site/blog/tags.html` → `/blog/tags/` |
 | `site/assets/css/blog.css` | Blog styles — palette tokens duplicated from `index.html` |
 | `site/first-meetup.ics` | Calendar invite for the July 18 first meetup (past) |
-| `site/defcon-debrief.ics` | Calendar invite for the Aug 22 DEF CON debrief meetup |
+| `site/defcon-debrief.ics` | Calendar invite for the Aug 22 DEF CON debrief meetup (past) |
+| `site/show-and-tell.ics` | Calendar invite for the Sept 26 open project session / show and tell |
 | `middleware.js` | Vercel edge middleware password-gating `/slides.html` |
 | `vercel.json` | Vercel build config — `bundle exec jekyll build`, output `_site` |
 
@@ -58,7 +59,8 @@ bundle exec jekyll serve --drafts --livereload
 - **Coverage area**: Marysville, Arlington, Lake Stevens, Snohomish, Northern Everett
 - **Meetup venue**: Snohomish County Library community spaces
 - **First meetup**: Saturday, July 18, 2026, 11:00 AM — Monroe Public Library, Monroe, WA (past)
-- **Next meetup**: Saturday, August 22, 2026, 12:00–2:00 PM — Monroe Public Library, Monroe, WA — DEF CON debrief
+- **Second meetup**: Saturday, August 22, 2026, 12:00–2:00 PM — Monroe Public Library, Monroe, WA — DEF CON debrief (past)
+- **Next meetup**: Saturday, September 26, 2026, 1:00–3:00 PM — Monroe Public Library, Monroe, WA — open project session / hacker show and tell
 - **Membership**: None required — show up and participate
 - **IP policy**: Members own their work; group projects → SSH GitHub org under MIT
 - **Governance**: Rough consensus, no officers, no votes unless group decides otherwise

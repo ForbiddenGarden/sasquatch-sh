@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snohomish Sasquatch Hackers//SSH Meetup//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ssh-show-and-tell-20260926@sasquatch.sh
+DTSTAMP:20260827T000000Z
+DTSTART:20260926T200000Z
+DTEND:20260926T220000Z
+SUMMARY:SSH Meetup: Open Project Session & Show and Tell — Snohomish Sasquatch Hackers
+LOCATION:Monroe Public Library\, Monroe\, WA
+DESCRIPTION:Open project session with the Snohomish Sasquatch Hackers (SSH). Bring the project you've been putting off — hacker show and tell. No membership required — just show up.
+URL:https://sasquatch.sh
+END:VEVENT
+END:VCALENDAR
