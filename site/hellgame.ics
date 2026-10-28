@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snohomish Sasquatch Hackers//SSH Meetup//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ssh-hellgame-20261031@sasquatch.sh
+DTSTAMP:20261027T000000Z
+DTSTART:20261031T200000Z
+DTEND:20261031T220000Z
+SUMMARY:SSH Meetup: $hellgame (Halloween Hacker Jeopardy) — Snohomish Sasquatch Hackers
+LOCATION:Monroe Public Library Meeting Room\, Monroe\, WA
+DESCRIPTION:$hellgame — Hacker Jeopardy with a Halloween curse. Join a team on your phone and buzz in\, watch the board on the big screen\, and dodge the chaos captchas. No membership required — just show up. Costumes welcome.
+URL:https://sasquatch.sh
+END:VEVENT
+END:VCALENDAR
