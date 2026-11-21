@@ -22,7 +22,8 @@ Founded May 2026, Marysville, WA by Nelson.
 | `site/first-meetup.ics` | Calendar invite for the July 18 first meetup (past) |
 | `site/defcon-debrief.ics` | Calendar invite for the Aug 22 DEF CON debrief meetup (past) |
 | `site/show-and-tell.ics` | Calendar invite for the Sept 26 open project session / show and tell (past) |
-| `site/hellgame.ics` | Calendar invite for the Oct 31 $hellgame Halloween meetup |
+| `site/hellgame.ics` | Calendar invite for the Oct 31 $hellgame Halloween meetup (past) |
+| `site/hushcon-preview.ics` | Calendar invite for the Nov 28 HushCon preview meetup |
 | `middleware.js` | Vercel edge middleware password-gating `/slides.html` |
 | `vercel.json` | Vercel build config — `bundle exec jekyll build`, output `_site` |
 
@@ -62,7 +63,8 @@ bundle exec jekyll serve --drafts --livereload
 - **First meetup**: Saturday, July 18, 2026, 11:00 AM — Monroe Public Library, Monroe, WA (past)
 - **Second meetup**: Saturday, August 22, 2026, 12:00–2:00 PM — Monroe Public Library, Monroe, WA — DEF CON debrief (past)
 - **Third meetup**: Saturday, September 26, 2026, 1:00–3:00 PM — Monroe Public Library, Monroe, WA — open project session / hacker show and tell (past)
-- **Next meetup**: Saturday, October 31, 2026, 1:00–3:00 PM — Monroe Public Library Meeting Room, Monroe, WA — **$hellgame**: Hacker Jeopardy with a Halloween curse (sibling project at `../($)hellgame`, deployed to `hellgame.sasquatch.sh`)
+- **Fourth meetup**: Saturday, October 31, 2026, 1:00–3:00 PM — Monroe Public Library Meeting Room, Monroe, WA — **$hellgame**: Hacker Jeopardy with a Halloween curse (sibling project at `../($)hellgame`, deployed to `hellgame.sasquatch.sh`) (past)
+- **Next meetup**: Saturday, November 28, 2026, 1:00–3:00 PM — Monroe Public Library, Monroe, WA — HushCon presentation preview by Groktar / 0xD34D. Warning: may emit spicy packets
 - **Membership**: None required — show up and participate
 - **IP policy**: Members own their work; group projects → SSH GitHub org under MIT
 - **Governance**: Rough consensus, no officers, no votes unless group decides otherwise
