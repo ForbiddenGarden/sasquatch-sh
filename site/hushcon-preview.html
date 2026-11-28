@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>SSH — HushCon Preview</title>
+<style>
+  :root {
+    --bg:        #060d06;
+    --bg2:       #0d1a0d;
+    --border:    #1a331a;
+    --green:     #3fb950;
+    --green-dim: #2a7a35;
+    --text:      #cdd9cd;
+    --muted:     #6a8f6a;
+    --amber:     #d29922;
+    --red:       #e5534b;
+    --dim:       rgba(205,217,205,0.35);
+    --card:      #0a150a;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  #deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 64px;
+    opacity: 0;
+    pointer-events: none;
+    overflow-y: auto;
+    transition: opacity 0.35s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+  .slide > * { position: relative; z-index: 2; }
+
+  #progress-bar {
+    position: fixed; bottom: 0; left: 0; height: 3px;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    transition: width 0.35s ease;
+    z-index: 100;
+  }
+  #counter {
+    position: fixed; bottom: 14px; right: 20px;
+    font-size: 19px; letter-spacing: 0.2em;
+    color: rgba(205,217,205,0.2); z-index: 100;
+  }
+  #nav-hint {
+    position: fixed; bottom: 14px; left: 20px;
+    font-size: 18px; letter-spacing: 0.15em;
+    color: rgba(205,217,205,0.15); z-index: 100;
+  }
+  #prev-zone, #next-zone { position: fixed; top: 0; bottom: 0; width: 20%; z-index: 50; cursor: pointer; }
+  #prev-zone { left: 0; }
+  #next-zone { right: 0; }
+
+  .eyebrow {
+    font-size: 20px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 8px;
+  }
+  .eyebrow::before { content: '# '; color: var(--green-dim); }
+
+  .big-title {
+    font-size: clamp(42px, 7vw, 88px);
+    font-weight: 900; letter-spacing: -0.02em; line-height: 0.95;
+    color: var(--green);
+    text-shadow: 0 0 40px rgba(63,185,80,0.35);
+  }
+
+  .slide-title {
+    font-size: clamp(30px, 4.2vw, 48px);
+    font-weight: 900; letter-spacing: 0.01em;
+    margin-bottom: 18px; text-align: center;
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(63,185,80,0.25);
+  }
+
+  .green { color: var(--green); }
+  .amber { color: var(--amber); }
+  .red   { color: var(--red); }
+  .muted { color: var(--muted); }
+  .dim   { color: var(--dim); }
+  .glow  { text-shadow: 0 0 14px rgba(63,185,80,0.5), 0 0 30px rgba(63,185,80,0.25); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 22px;
+  }
+  .card-amber { border-color: rgba(210,153,34,0.4); box-shadow: 0 0 20px rgba(210,153,34,0.08), inset 0 0 15px rgba(210,153,34,0.03); }
+  .card-green { border-color: rgba(63,185,80,0.35); box-shadow: 0 0 15px rgba(63,185,80,0.08), inset 0 0 15px rgba(63,185,80,0.03); }
+  .card-red   { border-color: rgba(229,83,75,0.4); box-shadow: 0 0 20px rgba(229,83,75,0.08), inset 0 0 15px rgba(229,83,75,0.03); }
+
+  .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 900px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; width: 100%; max-width: 920px; }
+
+  .divider { border: none; border-top: 1px solid rgba(205,217,205,0.08); width: 100%; margin: 18px 0; }
+
+  .bullet-list { list-style: none; width: 100%; max-width: 740px; }
+  .bullet-list li {
+    display: flex; gap: 14px;
+    font-size: clamp(18px, 2.1vw, 23px);
+    color: var(--text); line-height: 1.5;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(205,217,205,0.06);
+  }
+  .bullet-list li:last-child { border-bottom: none; }
+  .bullet-list .bullet-icon { color: var(--green); flex-shrink: 0; }
+
+  .pill {
+    display: inline-block; padding: 5px 12px; border-radius: 3px;
+    font-size: 18px; letter-spacing: 0.08em; font-weight: bold;
+  }
+  .pill-green { background: rgba(63,185,80,0.1);  color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  .pill-amber { background: rgba(210,153,34,0.12); color: var(--amber); border: 1px solid rgba(210,153,34,0.3); }
+  .pill-red   { background: rgba(229,83,75,0.1);   color: var(--red);   border: 1px solid rgba(229,83,75,0.3); }
+
+  .mission {
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.5;
+    border-left: 3px solid var(--green-dim);
+    padding-left: 18px;
+    color: #a8c8a8;
+    max-width: 740px;
+    margin-bottom: 16px;
+  }
+
+  .shot-wrap {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 0 24px rgba(63,185,80,0.06);
+  }
+  .shot {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
+  }
+  .shot-cap { font-size: 18px; color: var(--muted); margin-top: 6px; text-align: center; letter-spacing: 0.04em; }
+
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 20px; }
+  .kv dt { color: var(--muted); text-align: right; }
+  .kv dd { color: var(--text); }
+
+  .phase-label {
+    font-size: 16px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 4px;
+  }
+
+  .chain {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 14px;
+  }
+  .chain-step {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 4px; font-size: 16px;
+    color: var(--text); text-align: center; min-width: 100px;
+  }
+  .chain-step.active { border-color: var(--green); color: var(--green); }
+  .chain-arrow { color: var(--green-dim); font-size: 20px; }
+
+  .stat-row {
+    display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-size: clamp(36px, 5vw, 56px); font-weight: 900;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 16px; color: var(--muted); letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  .timeline {
+    list-style: none; width: 100%; max-width: 740px;
+    border-left: 2px solid var(--green-dim);
+    padding-left: 24px;
+  }
+  .timeline li {
+    position: relative; padding: 10px 0;
+    font-size: clamp(18px, 2vw, 22px);
+    color: var(--text); line-height: 1.5;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute; left: -29px; top: 18px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(63,185,80,0.4);
+  }
+  .timeline .tl-label {
+    font-size: 15px; letter-spacing: 0.15em;
+    color: var(--amber); text-transform: uppercase;
+    display: block; margin-bottom: 2px;
+  }
+
+  code, .code {
+    font-family: var(--mono);
+    background: rgba(63,185,80,0.08);
+    padding: 1px 6px; border-radius: 3px;
+    color: var(--green); font-size: 0.9em;
+  }
+
+  #s1 { border: 1px solid var(--green-dim); }
+  #s1::after {
+    content: ''; position: absolute; inset: 0;
+    box-shadow: inset 0 0 70px rgba(63,185,80,0.06);
+    pointer-events: none;
+  }
+
+  @media print {
+    html, body { overflow: visible; }
+    #deck { height: auto; }
+    .slide { position: relative; opacity: 1; pointer-events: all; page-break-after: always; height: 100vh; }
+    #progress-bar, #counter, #nav-hint, #prev-zone, #next-zone { display: none; }
+  }
+
+  @media (max-width: 720px) {
+    .slide { padding: 30px 20px; }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .chain { gap: 4px; }
+    .chain-step { min-width: 70px; font-size: 13px; padding: 6px 8px; }
+    .stat-row { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 0: WELCOME / HANG OUT
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide active" id="s0">
+    <div class="eyebrow">Snohomish Sasquatch Hackers &middot; Nov 28</div>
+    <div style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap;">
+      <img src="images/bigfoot.svg" alt="" aria-hidden="true"
+           style="height:min(55vh,420px);width:auto;filter:drop-shadow(0 0 12px rgba(63,185,80,.35));">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
+        <div class="big-title glow" style="font-size:clamp(42px,6vw,80px);text-align:center;">
+          Welcome!
+        </div>
+        <div style="font-size:clamp(18px,2.2vw,26px);color:var(--amber);text-align:center;max-width:420px;line-height:1.5;">
+          Grab a seat &amp; settle in.<br>We&rsquo;ll get started shortly.
+        </div>
+        <div style="background:#fff;padding:12px;width:min(22vw,220px);aspect-ratio:1;box-shadow:0 0 24px rgba(63,185,80,.25);margin-top:8px;">
+          <img src="signal-qr.svg" alt="QR code — join the SSH Signal group" style="width:100%;height:100%;display:block;">
+        </div>
+        <div class="muted" style="font-size:clamp(14px,1.4vw,18px);text-align:center;line-height:1.5;">
+          Scan to join the Signal group
+        </div>
+        <div class="dim" style="font-size:clamp(14px,1.3vw,17px);text-align:center;margin-top:4px;letter-spacing:0.06em;">
+          Monroe Public Library &middot; 1&ndash;3 PM &middot; sasquatch.sh
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 1: TITLE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s1">
+    <div class="eyebrow">SSH 2026 &nbsp;&middot;&nbsp; HushCon Preview &nbsp;&middot;&nbsp; 12/12</div>
+    <div class="big-title glow" style="margin-bottom:8px; text-align:center;">
+      Every Price Has<br>a Frequency
+    </div>
+    <div style="font-size:clamp(22px,2.6vw,30px);color:var(--amber);margin-bottom:6px;text-align:center;letter-spacing:0.03em;">
+      Hanshowned
+    </div>
+    <div class="muted" style="font-size:clamp(16px,1.8vw,21px);text-align:center;line-height:1.6;max-width:680px;margin-bottom:20px;">
+      Reverse Engineering a Retail ESL Ecosystem from Shelf to PWN
+    </div>
+    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center;">
+      <span class="green" style="font-size:22px;font-weight:bold;">Groktar</span>
+      <span class="muted" style="font-size:20px;">&amp;</span>
+      <span class="green" style="font-size:22px;font-weight:bold;">0xD34D</span>
+    </div>
+    <div class="dim" style="font-size:17px;margin-top:12px;letter-spacing:0.06em;">
+      Photo on a shelf &rarr; FCC filings &rarr; Docker Hub &rarr; Decompilation &rarr; RF exploitation
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 2: WHO WE ARE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="eyebrow">Who We Are</div>
+    <div class="slide-title">The Team</div>
+
+    <div class="two-col" style="max-width:860px;">
+      <div class="card card-green" style="text-align:center;">
+        <div class="green" style="font-size:28px;font-weight:900;margin-bottom:8px;">Groktar</div>
+        <ul style="list-style:none;font-size:19px;line-height:1.8;color:var(--text);text-align:left;">
+          <li>&gt; Platform recon &amp; OSINT</li>
+          <li>&gt; ESL-Working / ShopWeb decompilation</li>
+          <li>&gt; AP teardown &amp; elinker RE</li>
+          <li>&gt; NFC protocol analysis &amp; TLV provisioning</li>
+          <li>&gt; HandyLink mobile app RE</li>
+          <li>&gt; Tag firmware RE &amp; flash patching</li>
+        </ul>
+      </div>
+      <div class="card card-green" style="text-align:center;">
+        <div class="green" style="font-size:28px;font-weight:900;margin-bottom:8px;">0xD34D</div>
+        <ul style="list-style:none;font-size:19px;line-height:1.8;color:var(--text);text-align:left;">
+          <li>&gt; RF protocol reverse engineering</li>
+          <li>&gt; Custom sniffer development</li>
+          <li>&gt; Commission timing analysis</li>
+          <li>&gt; gen_fsk responder firmware</li>
+          <li>&gt; Echo-ack framing &amp; wire-format fixes</li>
+          <li>&gt; RX decode &amp; payload corrections</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:860px;margin-top:16px;text-align:center;">
+      <span style="font-size:20px;color:var(--text);">
+        Combined: <strong class="green">NFC-to-RF full-chain exploitation</strong> of a production electronic shelf label platform
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 3: WHAT ARE ESLs
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="eyebrow">Background</div>
+    <div class="slide-title">What the Hell Are Electronic Shelf Labels?</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div>
+        <div class="stat-row" style="justify-content:flex-start;gap:28px;margin-bottom:16px;">
+          <div class="stat" style="text-align:left;">
+            <div class="stat-num green" style="font-size:clamp(32px,4.5vw,48px);">1B+</div>
+            <div class="stat-label">Labels deployed globally</div>
+          </div>
+          <div class="stat" style="text-align:left;">
+            <div class="stat-num amber" style="font-size:clamp(32px,4.5vw,48px);">$30B</div>
+            <div class="stat-label">Market by 2030</div>
+          </div>
+        </div>
+
+        <div class="mission" style="margin-bottom:14px;">
+          Wireless e-paper displays replacing paper price tags in retail stores worldwide.
+          Battery-powered, 2.4 GHz GFSK radio + NFC. Managed by access points &rarr; central server &rarr; ERP integration.
+        </div>
+
+        <div style="font-size:18px;letter-spacing:0.12em;color:var(--muted);margin-bottom:6px;">TOP 3 GLOBAL ESL VENDORS</div>
+        <ul style="list-style:none;font-size:20px;line-height:1.9;color:var(--text);">
+          <li>&gt; <strong class="green">SES-imagotag</strong> &mdash; European market leader</li>
+          <li>&gt; <strong class="green">Hanshow</strong> &mdash; our target</li>
+          <li>&gt; <strong class="green">Pricer</strong> &mdash; Swedish, optical/IR legacy</li>
+        </ul>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <span class="pill pill-red" style="font-size:16px;">Scarce published research on any of them</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div class="shot-wrap" style="max-width:340px;height:auto;">
+          <img class="shot" src="images/Wat_is_iot.jpg" alt="Hank Hill meme: DO I LOOK LIKE I KNOW WHAT AN IOT IS?" style="object-fit:contain;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 4: THE ORIGIN STORY
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="eyebrow">How It Started</div>
+    <div class="slide-title">A Photo in Signal</div>
+
+    <div class="mission">
+      This project started on a whim. A friend sent a photo in Signal of a price tag
+      his wife had &ldquo;acquired&rdquo; during a trip to the local grocery store.
+    </div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="shot-wrap" style="max-width:420px;height:auto;">
+          <img class="shot" src="images/an_innocent_photo.jpg" alt="The original photo — a Hanshow ESL price tag showing Coke Classic at $2.89 with BUY 2 GET 1 FREE promo" style="object-fit:contain;">
+        </div>
+        <div class="shot-cap">The photo that started it all</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card">
+          <div style="font-size:18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;">WHAT THE BACK SHOWED</div>
+          <ul style="list-style:none;font-size:19px;line-height:1.8;color:var(--text);">
+            <li>&gt; <strong class="green">FCC ID</strong> clearly marked</li>
+            <li>&gt; <strong class="green">Model number</strong> &mdash; Pro-266Q-N</li>
+            <li>&gt; <strong class="green">Manufacturer</strong> &mdash; Hanshow</li>
+            <li>&gt; An e-paper display with a price on it</li>
+            <li>&gt; A battery-powered wireless device</li>
+          </ul>
+        </div>
+        <div class="card card-amber">
+          <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">THE THOUGHT PROCESS</div>
+          <p style="font-size:19px;line-height:1.6;color:var(--text);">
+            &ldquo;Huh, that has an FCC ID on it. I wonder what the
+            FCC database says about this thing.&rdquo;
+          </p>
+          <p style="font-size:19px;line-height:1.6;color:var(--text);margin-top:10px;">
+            Famous last words before a five-month rabbit hole.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 5: FCC RABBIT HOLE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="eyebrow">Recon &mdash; Phase 1</div>
+    <div class="slide-title">Down the FCC Rabbit Hole</div>
+
+    <div class="mission">
+      FCC.IO and the FCC database are public. Every wireless device sold in the US
+      has a filing. The filings for Hanshow&rsquo;s ESL controllers contained far more
+      than expected.
+    </div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">WHAT THE FILINGS REVEALED</div>
+        <ul style="list-style:none;font-size:19px;line-height:1.8;color:var(--text);">
+          <li>&gt; Internal &amp; external hardware photos</li>
+          <li>&gt; PCB layouts with chip markings</li>
+          <li>&gt; <strong class="green">System architecture diagrams</strong></li>
+          <li>&gt; RF test reports with protocol details</li>
+          <li>&gt; Product naming conventions</li>
+          <li>&gt; Internal infrastructure component names</li>
+        </ul>
+      </div>
+      <div>
+        <div class="shot-wrap" style="height:auto;max-height:320px;">
+          <img class="shot" src="images/polaris-naming-scheme.png" alt="Polaris Pro naming scheme from FCC filing — Figure 3-1 showing model number breakdown">
+        </div>
+        <div class="shot-cap">Polaris Pro naming scheme &mdash; straight from the filing</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 6: INFRASTRUCTURE REVEALED
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s6">
+    <div class="eyebrow">Recon &mdash; Phase 2</div>
+    <div class="slide-title">Infrastructure Revealed</div>
+
+    <p class="mission">
+      The AP product manual &mdash; found through FCC filings &mdash; contained a full system
+      architecture diagram naming every backend component. It was the Rosetta Stone
+      for the rest of the research.
+    </p>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div>
+        <div class="shot-wrap" style="height:auto;max-height:360px;">
+          <img class="shot" src="images/hanshow-system-arch.jpg" alt="Hanshow ESL system architecture diagram from AP product manual — showing Cloud Service layer with ESL-Working, Shopweb, Database servers, and Store layer with AP controller and ESLs">
+        </div>
+        <div class="shot-cap">Figure 1-5 from HS-C09978 Product Manual v1.0.0</div>
+      </div>
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;">INTERNAL NAMES DISCOVERED</div>
+        <dl class="kv" style="font-size:19px;">
+          <dt>ESL-Working</dt><dd>Tag management system &mdash; AP comms, RF commands</dd>
+          <dt>ShopWeb</dt><dd>Web UI &mdash; label management, templates, inventory</dd>
+          <dt>PriSmart</dt><dd>Smart retail API platform &mdash; store-level integration</dd>
+          <dt>PDA</dt><dd>Handheld terminal for in-store operations</dd>
+          <dt>HS-C09959</dt><dd>ESL controller (AP) &mdash; 4 &times; CC2640 radios</dd>
+          <dt>HS-C09978</dt><dd>USB ESL controller for Aruba/Extreme APs</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 7: DOCKER HUB JACKPOT
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="eyebrow">Recon &mdash; Phase 3</div>
+    <div class="slide-title">The Docker Hub Jackpot</div>
+
+    <p class="mission">
+      Now that we had the internal platform names, further OSINT led to a discovery
+      on Docker Hub: the vendor&rsquo;s full middleware stack &mdash; unauthenticated,
+      actively maintained, sitting in a public repository.
+    </p>
+
+    <div class="three-col" style="max-width:920px;">
+      <div class="card card-amber">
+        <div style="font-size:16px;letter-spacing:0.15em;color:var(--amber);margin-bottom:6px;">HANSHOW-STACK</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">Tomcat + shopweb.war + eslworking daemon. The full production shape.</p>
+      </div>
+      <div class="card card-amber">
+        <div style="font-size:16px;letter-spacing:0.15em;color:var(--amber);margin-bottom:6px;">MYSQL-HANSHOW</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">MySQL 5.7, pre-seeded. Creds: <code>hanshow/000000</code></p>
+      </div>
+      <div class="card card-amber">
+        <div style="font-size:16px;letter-spacing:0.15em;color:var(--amber);margin-bottom:6px;">PYTHON-SERVICES</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">Flask pricing-sync. Also an unauthenticated admin proxy.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:16px;letter-spacing:0.15em;color:var(--muted);margin-bottom:6px;">NGINX-HANSHOW</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">Reverse proxy config revealing customer hostnames.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:16px;letter-spacing:0.15em;color:var(--muted);margin-bottom:6px;">ESL-WORKING</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">Standalone eslworking daemon. The older deployment.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:16px;letter-spacing:0.15em;color:var(--muted);margin-bottom:6px;">SHOP-WEB</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">Tomcat base with shopweb.war. Never started.</p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+      <span class="pill pill-red">7 image tags spanning ~7 years</span>
+      <span class="pill pill-amber">Last updated 6 months ago</span>
+      <span class="pill pill-green">Not legacy &mdash; actively maintained</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 8: SHOPWEB & AP ADMIN — WHAT'S INSIDE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s8">
+    <div class="eyebrow">Recon &mdash; Running the Stack</div>
+    <div class="slide-title">ShopWeb &amp; AP Admin</div>
+
+    <p class="mission">
+      We spun up the Docker stack locally and logged into the real AP.
+      These are the management interfaces that control every label in a store.
+    </p>
+
+    <div class="two-col" style="max-width:920px;align-items:start;">
+
+      <!-- ShopWeb -->
+      <div>
+        <div class="shot-wrap" style="height:auto;max-height:300px;">
+          <img class="shot" src="images/shopweb-dashboard.png" alt="ShopWeb Store Data Report dashboard — ESL Statistics, Goods Statistics, System Status showing ESL-Working Offline">
+        </div>
+        <div class="shot-cap">ShopWeb &mdash; Store Data Report (<code>:8080/shopweb</code>)</div>
+        <div class="card" style="margin-top:8px;">
+          <dl class="kv" style="font-size:16px;">
+            <dt>Default login</dt><dd><code>admin / admin</code></dd>
+            <dt>Manages</dt><dd>labels, templates, firmware, store&nbsp;config</dd>
+            <dt>License key</dt><dd>hardcoded &mdash; <code>Validterm2026-12-31</code></dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- AP admin -->
+      <div>
+        <div class="shot-wrap" style="height:auto;max-height:300px;">
+          <img class="shot" src="images/ap-admin-config.png" alt="Hanshow AP config page — Network, ESL-Working address, Reboot AP, Change admin password, Upgrade firmware">
+        </div>
+        <div class="shot-cap">AP Admin &mdash; <code>192.168.50.45/config</code></div>
+        <div class="card" style="margin-top:8px;">
+          <dl class="kv" style="font-size:16px;">
+            <dt>Root cred</dt><dd><code>root / hanshow-imx6</code></dd>
+            <dt>ESL-Working addr</dt><dd>points to <code>aldi-sued-prd.hanshowcloud.net</code></dd>
+            <dt>SSL</dt><dd>optional &mdash; <strong class="amber">off by default</strong></dd>
+          </dl>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+      <span class="pill pill-red">Same root password across 8+ production tenants</span>
+      <span class="pill pill-amber">AP points directly at customer cloud &mdash; repoint it anywhere</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 9: THE AP — HS-C09959 / ELINKER
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s9">
+    <div class="eyebrow">Recon &mdash; The Access Point</div>
+    <div class="slide-title">Inside the HS-C09959</div>
+
+    <div class="two-col" style="max-width:920px;align-items:start;">
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">HARDWARE</div>
+        <dl class="kv" style="font-size:18px;">
+          <dt>SoC</dt><dd>ARM Cortex-A7 (i.MX6)</dd>
+          <dt>OS</dt><dd>Linux 4.1.15, BusyBox</dd>
+          <dt>RF</dt><dd>4 &times; CC2640 radios over SPI</dd>
+          <dt>Firmware</dt><dd><code>rf.bin</code> per radio, flashable via <code>rf-upgrade</code></dd>
+          <dt>Root creds</dt><dd><code class="red" style="color:var(--red);">root / hanshow-imx6</code></dd>
+        </dl>
+        <div class="divider"></div>
+        <div style="font-size:17px;color:var(--text);line-height:1.5;">
+          Root password confirmed identical across <strong class="red">8+ named production tenants</strong>
+          via a public third-party config tool.
+        </div>
+      </div>
+      <div class="card card-amber">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">ELINKER &mdash; THE GHOST PROCESS</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);margin-bottom:10px;">
+          <code>/home/elinker/bin/elinker</code> &mdash; a 364 KB ARM ELF binary
+          not named or referenced in any public documentation.
+          It owns the entire RF &harr; cloud path.
+        </p>
+        <ul style="list-style:none;font-size:17px;line-height:1.7;color:var(--text);">
+          <li>&gt; Receives RF heartbeats from all 4 radios</li>
+          <li>&gt; Multiplexes uplink to <code>eslworking</code> over TLS</li>
+          <li>&gt; Routes server downlinks to specific radios</li>
+          <li>&gt; Own OpenSSL 1.0.2d TLS client (<span class="red">2015-era</span>)</li>
+          <li>&gt; SSL is <strong class="amber">opt-in and off by default</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="two-col" style="max-width:920px;margin-top:14px;align-items:start;">
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">SILENT FIRMWARE REVERT</div>
+        <p style="font-size:17px;line-height:1.5;color:var(--text);">
+          If any radio fails its version-query during <code>elinker</code>&rsquo;s startup,
+          it <strong class="red">silently reflashes that radio back to stock</strong> &mdash;
+          no human action, barely-visible log lines, no alarm. A boot hiccup can undo
+          a firmware change with no indication anything happened.
+        </p>
+      </div>
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">MORE ALARMING FINDINGS</div>
+        <ul style="list-style:none;font-size:17px;line-height:1.7;color:var(--text);">
+          <li>&gt; <code>firmwareupgrade.sh</code>: RSA-SHA1 sig check, but
+            <strong class="red">$filename used unquoted</strong> &mdash; shell injection</li>
+          <li>&gt; <code>elinker.sh restart</code> has a PID-file race &mdash;
+            can leave <strong class="red">zero elinker running</strong></li>
+          <li>&gt; Our unit was last configured for
+            <strong class="amber">aldi-sued-prd.hanshowcloud.net</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 10: DECOMPILATION
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s10">
+    <div class="eyebrow">Recon &mdash; Phase 4</div>
+    <div class="slide-title">Decompilation</div>
+
+    <p class="mission">
+      With the full Docker stack running in an isolated lab, we pulled the JARs and
+      started decompiling. The Java middleware told us everything about how the
+      system actually works.
+    </p>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">WHAT WE DECOMPILED</div>
+        <ul style="list-style:none;font-size:19px;line-height:1.8;color:var(--text);">
+          <li>&gt; <code>eslworking-2.5.3.jar</code></li>
+          <li>&gt; <code>shopweb-core-1.7.5-rc14.jar</code></li>
+          <li>&gt; ~1,900 decompiled classes</li>
+          <li>&gt; Spring + MyBatis + Jetty/Netty</li>
+          <li>&gt; AP&harr;server wire protocol</li>
+          <li>&gt; RF command framing &amp; dispatch</li>
+        </ul>
+      </div>
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">WHAT FELL OUT</div>
+        <ul style="list-style:none;font-size:19px;line-height:1.8;color:var(--text);">
+          <li>&gt; Hardcoded DB creds: <code>hanshow/000000</code></li>
+          <li>&gt; FTP creds: <code>hanshow/hanshow</code></li>
+          <li>&gt; TLS keystores open with <code>changeit</code></li>
+          <li>&gt; Static RF access codes in cleartext</li>
+          <li>&gt; Zero authentication on the XML-RPC API</li>
+          <li>&gt; The entire RF wire-format specification</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 11: SERVER-SIDE FINDINGS
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s11">
+    <div class="eyebrow">Server Side</div>
+    <div class="slide-title">Backend Attack Surface</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">API SURFACE</div>
+        <ul style="list-style:none;font-size:18px;line-height:1.7;color:var(--text);">
+          <li>&gt; Zero authentication on the entire XML-RPC/REST API</li>
+          <li>&gt; Label management, firmware push, cipher reset &mdash; all unauthenticated</li>
+          <li>&gt; Path traversal in firmware upload endpoint</li>
+          <li>&gt; Unauthenticated SQLi-shaped endpoint</li>
+          <li>&gt; UDP discovery beacon responds to any inbound packet</li>
+        </ul>
+      </div>
+      <div class="card card-amber">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">CRYPTO FAILURES</div>
+        <ul style="list-style:none;font-size:18px;line-height:1.7;color:var(--text);">
+          <li>&gt; AES-128-ECB &mdash; no IV, no MAC</li>
+          <li>&gt; Cipher is optional and <strong class="amber">off by default</strong></li>
+          <li>&gt; Master key &ldquo;encrypted&rdquo; with key from <code>timestamp &gt;&gt; 3</code></li>
+          <li>&gt; Timestamp stored next to the ciphertext</li>
+          <li>&gt; Integrity check: MD5 &rarr; CRC32</li>
+          <li>&gt; No signature verification on firmware OTA</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:900px;margin-top:12px;text-align:center;">
+      <span style="font-size:19px;color:var(--text);">
+        Systematic grep for <code>Signature</code>, <code>RSA</code>, <code>ECDSA</code>,
+        <code>PublicKey</code>, <code>.verify()</code> across ~1,900 classes &mdash;
+        <strong class="red">zero matches</strong>
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 12: TARGET HARDWARE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s12">
+    <div class="eyebrow">The Lab</div>
+    <div class="slide-title">Target Hardware</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">HANSHOW NEBULAR PRO-266Q-N</div>
+        <dl class="kv" style="font-size:19px;">
+          <dt>SoC</dt><dd>Telink TLSR8359 (TC32)</dd>
+          <dt>Display</dt><dd>296 &times; 152 px, 4-color BWRY e-paper</dd>
+          <dt>RF</dt><dd>2.4 GHz GFSK, 500 kbps, proprietary</dd>
+          <dt>NFC</dt><dd>ISO 14443-4A, private protocol</dd>
+          <dt>Auth</dt><dd>AES-128-ECB, default key 0xFF &times; 16</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;">OUR LAB</div>
+        <dl class="kv" style="font-size:19px;">
+          <dt>Tags</dt><dd>8 &times; Pro-266Q-N</dd>
+          <dt>AP</dt><dd>HS-C09959 (4 &times; CC2640)</dd>
+          <dt>NFC</dt><dd>Flipper Zero + APDU Runner</dd>
+          <dt>UART</dt><dd>RP2040 PIO bridge, 921600 baud</dd>
+          <dt>Responder</dt><dd>Repurposed Pro-266Q-N</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:900px;margin-top:12px;text-align:center;">
+      <span style="font-size:18px;color:var(--muted);">
+        All testing against our own isolated lab hardware &mdash; no production systems touched
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 13: THE RF PROTOCOL — OFF-THE-SHELF "PROPRIETARY"
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s13">
+    <div class="eyebrow">The Protocol</div>
+    <div class="slide-title">Off-the-Shelf &ldquo;Proprietary&rdquo;</div>
+
+    <p class="mission">
+      Hanshow&rsquo;s RF protocol isn&rsquo;t proprietary engineering &mdash; it&rsquo;s a turnkey ESL
+      reference design from Telink, configured and shipped. The chip, the radio, and the protocol are
+      all commercially available.
+    </p>
+
+    <div class="two-col" style="max-width:920px;align-items:start;">
+      <div class="card card-amber">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">THE MCU: TELINK TLSR8359</div>
+        <dl class="kv" style="font-size:17px;">
+          <dt>Arch</dt><dd><strong class="amber">TC32</strong> &mdash; Telink&rsquo;s own 32-bit core,
+            <em>not</em> ARM Cortex</dd>
+          <dt>Why</dt><dd>avoids ARM licensing fees entirely</dd>
+          <dt>Radio</dt><dd>integrated 2.4 GHz multi-mode transceiver</dd>
+          <dt>SDK</dt><dd><code>tc_platform_sdk</code> &mdash; full RF demo code included</dd>
+        </dl>
+        <div class="divider"></div>
+        <p style="font-size:16px;color:var(--text);line-height:1.5;">
+          Telink markets a complete
+          <strong class="green">ESL reference design</strong>
+          around this chip &mdash; tag firmware, AP firmware, protocol stack, even
+          the EPD drivers. Hanshow&rsquo;s product is built on that reference.
+        </p>
+      </div>
+
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">THE RF: SHOCKBURST REIMPLEMENTATION</div>
+        <dl class="kv" style="font-size:17px;">
+          <dt>Protocol</dt><dd><code>RF_PRIVATE_500K</code> &mdash; Telink&rsquo;s &ldquo;proprietary mode&rdquo;</dd>
+          <dt>Based on</dt><dd>Nordic Enhanced ShockBurst architecture</dd>
+          <dt>PHY</dt><dd>500 kbps GFSK, 5&times; bit-expansion &rarr; 100k logical</dd>
+          <dt>Sync</dt><dd>2&ndash;5 byte access code, hardware correlator</dd>
+          <dt>Pipes</dt><dd>6 RX pipes &mdash; Nordic uses 8</dd>
+          <dt>Framing</dt><dd><code>reg 0x404 |= 0x03</code> &mdash; &ldquo;private header mode&rdquo;</dd>
+        </dl>
+        <div class="divider"></div>
+        <p style="font-size:16px;color:var(--text);line-height:1.5;">
+          Nordic ESB: configurable access address (2&ndash;5 bytes), multi-pipe RX
+          filtering, 250k/1M/2M data rates, hardware CRC. Telink&rsquo;s
+          <code>RF_PRIVATE</code> mode: same access-code/pipe abstraction, same
+          address lengths, same rates <strong class="amber">+&nbsp;500k</strong>,
+          same register-level pattern. The SDK even calls it
+          &ldquo;ShockBurst&nbsp;Mode&nbsp;3.&rdquo; Not bit-compatible &mdash;
+          a <strong class="red">clean-room architectural clone</strong>.
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+      <span class="pill pill-red">Not ARM &mdash; TC32 core avoids licensing</span>
+      <span class="pill pill-red">Not Nordic &mdash; ShockBurst architecture reimplemented</span>
+      <span class="pill pill-green">Telink ESL ref design = complete turnkey product</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 14: ATTACK CHAIN OVERVIEW
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s14">
+    <div class="eyebrow">The Attack</div>
+    <div class="slide-title">The Attack Chain</div>
+
+    <div class="chain">
+      <div class="chain-step active">Phase 0<br><span class="dim" style="font-size:13px;">NFC<br>Handshake</span></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div class="chain-step active">Phase 1<br><span class="dim" style="font-size:13px;">TLV<br>Provisioning</span></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div class="chain-step active">Phase 2<br><span class="dim" style="font-size:13px;">NFC Bind<br>Trigger</span></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div class="chain-step active">Phase 3<br><span class="dim" style="font-size:13px;">Echo-Ack<br>Response</span></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div class="chain-step active">Phase 4<br><span class="dim" style="font-size:13px;">RF<br>Commission</span></div>
+      <div class="chain-arrow">&rarr;</div>
+      <div class="chain-step active">Phase 5<br><span class="dim" style="font-size:13px;">Content<br>Push</span></div>
+    </div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">THE CRITICAL INSIGHT</div>
+        <p style="font-size:18px;line-height:1.6;color:var(--text);">
+          An unprovisioned tag ignores ctrl=0x93 entirely. Phase 1 sets a readiness flag
+          at SRAM 0x8432d0 that gates the commission handler. Without it, the tag never replies.
+        </p>
+      </div>
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">ATTACK SURFACE</div>
+        <p style="font-size:18px;line-height:1.6;color:var(--text);">
+          NFC: no authentication &mdash; CRC-16 only, no MAC/HMAC.
+          RF: AES-128-ECB optional, default key 0xFF &times; 16.
+          Firmware: no signature verification.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 15: PHASE 0 — NFC HANDSHAKE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s15">
+    <div class="phase-label">Phase 0</div>
+    <div class="slide-title">NFC Handshake</div>
+
+    <p class="mission">
+      Private protocol over ISO 14443-4A. Two-step handshake opens the session gate.
+    </p>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;">FRAME FORMAT</div>
+        <div style="font-size:17px;color:var(--green);font-family:var(--mono);line-height:1.6;">
+          [00] [C0] [00] [len] [reqtype]<br>
+          [content(0..240)]<br>
+          [crc16_lo] [crc16_hi]
+        </div>
+        <div style="font-size:16px;color:var(--muted);margin-top:8px;">
+          CRC-16/XMODEM (poly 0x1021, init 0x0000)
+        </div>
+      </div>
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">HANDSHAKE</div>
+        <ol style="list-style:none;font-size:19px;line-height:2;color:var(--text);">
+          <li><strong class="amber">1.</strong> <code>getRandom</code> (0x02) &mdash; send challenge, get 16-byte nonce</li>
+          <li><strong class="amber">2.</strong> <code>getSendRandom</code> (0x08) &mdash; encrypt nonce back, get 9000</li>
+        </ol>
+        <div class="divider"></div>
+        <div style="font-size:17px;color:var(--text);line-height:1.5;">
+          All 8 tags share the same default key: <strong class="red">0xFF &times; 16</strong> &mdash;
+          and a static nonce that survives power cycles
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 16: PHASE 1 — THE BREAKTHROUGH
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s16">
+    <div class="phase-label">Phase 1 &mdash; The Breakthrough</div>
+    <div class="slide-title">Finding the Gate</div>
+
+    <p class="mission">
+      We spent weeks trying to commission tags that silently ignored every RF request.
+      The firmware told us why.
+    </p>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">THE DEAD END</div>
+        <ul style="list-style:none;font-size:18px;line-height:1.8;color:var(--text);">
+          <li>&gt; Tags receive ctrl=0x93 commission frames&hellip;</li>
+          <li>&gt; The dispatch table has an entry for it&hellip;</li>
+          <li>&gt; But the handler checks a flag first</li>
+          <li>&gt; Flag at 0x8432d0 is <strong class="red">zero from BSS init</strong></li>
+        </ul>
+      </div>
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">THE KEY</div>
+        <ul style="list-style:none;font-size:18px;line-height:1.8;color:var(--text);">
+          <li>&gt; Only <strong class="green">one code path</strong> in 512 KB writes to 0x8432d0</li>
+          <li>&gt; TLV sub-record 0x35 via NFC opcode 0x11</li>
+          <li>&gt; Normally sent by the server during initial setup</li>
+          <li>&gt; <strong class="green">We can send it ourselves via Flipper Zero NFC</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:900px;margin-top:12px;">
+      <div style="font-size:16px;color:var(--muted);margin-bottom:6px;">THE SMALLEST WORKING PROVISIONING APDU (13 bytes, unencrypted)</div>
+      <div style="font-size:17px;color:var(--green);font-family:var(--mono);word-break:break-all;">
+        00 C0 00 0E 11 35 0B 01 00 00 00 00 00 00 00 00 00 D8 79
+      </div>
+      <div style="font-size:15px;color:var(--dim);margin-top:4px;">
+        header &middot; reqtype &middot; subrec &middot; flag &middot; padding &middot; CRC-16
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 17: PHASE 2 & 3 — NFC TRIGGER + ECHO-ACK
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s17">
+    <div class="phase-label">Phases 2 &amp; 3</div>
+    <div class="slide-title">RF Uplink &amp; Echo-Ack</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">NFC BIND TRIGGER</div>
+        <p style="font-size:18px;line-height:1.6;color:var(--text);margin-bottom:10px;">
+          After provisioning, an NFC bind command makes the tag fire RF uplink bursts.
+        </p>
+        <dl class="kv" style="font-size:17px;">
+          <dt>Channel</dt><dd>2 (2401 MHz)</dd>
+          <dt>Data rate</dt><dd>500 kbps</dd>
+          <dt>Encoding</dt><dd>5&times;-bit-repetition</dd>
+          <dt>Sync word</dt><dd><code>52 56 78 53</code></dd>
+          <dt>Bursts</dt><dd>~10 per trigger, incrementing seq</dd>
+        </dl>
+      </div>
+      <div class="card card-amber">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">ECHO-ACK RESPONSE</div>
+        <p style="font-size:18px;line-height:1.6;color:var(--text);margin-bottom:10px;">
+          Our responder must reply within <strong class="amber">51 ms</strong> of each tag burst.
+        </p>
+        <ul style="list-style:none;font-size:17px;line-height:1.7;color:var(--text);">
+          <li>&gt; Echo-ack frame: 9 bytes</li>
+          <li>&gt; Dual-TX strategy: 5&times;-sim + native 500k</li>
+          <li>&gt; ~1.3 ms RX-done to TX-start</li>
+          <li>&gt; All printf deferred to avoid DMA blocking</li>
+          <li>&gt; Three wire-format bugs found &amp; fixed</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Frame decode diagrams -->
+    <div style="display:flex;gap:16px;max-width:920px;margin-top:14px;flex-wrap:wrap;justify-content:center;">
+
+      <!-- Uplink frame — check-in (0x91) with full telemetry -->
+      <div class="card" style="flex:1;min-width:440px;">
+        <div style="font-size:15px;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;">DECODED CHECK-IN FRAME (0x91 &mdash; 32 logical bytes from 180 physical)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;font-family:var(--mono);font-size:13px;line-height:1;">
+          <span style="background:#1a331a;color:var(--muted);padding:4px 5px;border-radius:2px;" title="sync tail">52</span>
+          <span style="background:#1a331a;color:var(--muted);padding:4px 5px;border-radius:2px;" title="sync tail">56</span>
+          <span style="background:#1a331a;color:var(--muted);padding:4px 5px;border-radius:2px;" title="sync tail">78</span>
+          <span style="background:#1a331a;color:var(--muted);padding:4px 5px;border-radius:2px;" title="sync tail">53</span>
+          <span style="background:#2a5a1a;color:var(--green);padding:4px 5px;border-radius:2px;font-weight:bold;" title="opcode">91</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:4px 5px;border-radius:2px;" title="esl_id[0]">49</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:4px 5px;border-radius:2px;" title="esl_id[1]">A1</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:4px 5px;border-radius:2px;" title="esl_id[2]">60</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:4px 5px;border-radius:2px;" title="esl_id[3]">86</span>
+          <span style="background:#1a1a2a;color:#8888cc;padding:4px 5px;border-radius:2px;" title="MAC suffix hi">MA</span>
+          <span style="background:#1a1a2a;color:#8888cc;padding:4px 5px;border-radius:2px;" title="MAC suffix lo">C&thinsp;</span>
+          <span style="background:#1a1a2a;color:#8888cc;padding:4px 5px;border-radius:2px;" title="HW revision">HW</span>
+          <span style="background:#1a1a2a;color:#8888cc;padding:4px 5px;border-radius:2px;" title="reserved">..</span>
+          <span style="background:#2a1a3a;color:#cc88ee;padding:4px 5px;border-radius:2px;font-weight:bold;" title="slot[11:0]">SL</span>
+          <span style="background:#2a1a3a;color:#cc88ee;padding:4px 5px;border-radius:2px;font-weight:bold;" title="slot[11:8]|batt[3:0]">S|B</span>
+          <span style="background:#3a1a1a;color:var(--red);padding:4px 5px;border-radius:2px;font-weight:bold;" title="channel">CH</span>
+          <span style="background:#1a3a3a;color:#66cccc;padding:4px 5px;border-radius:2px;font-weight:bold;" title="PAN lo">PA</span>
+          <span style="background:#1a3a3a;color:#66cccc;padding:4px 5px;border-radius:2px;font-weight:bold;" title="PAN hi">N&thinsp;</span>
+          <span style="background:#1a1a2a;color:#8888cc;padding:4px 5px;border-radius:2px;" title="telemetry">..</span>
+          <span style="background:#2a2a2a;color:var(--text);padding:4px 5px;border-radius:2px;" title="CRC">CR</span>
+          <span style="background:#2a2a2a;color:var(--text);padding:4px 5px;border-radius:2px;" title="CRC">C&thinsp;</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px;">
+          <span><span style="color:var(--muted);">&block;</span> sync</span>
+          <span><span style="color:var(--green);">&block;</span> opcode</span>
+          <span><span style="color:var(--amber);">&block;</span> esl_id</span>
+          <span><span style="color:#cc88ee;">&block;</span> <strong>slot</strong></span>
+          <span><span style="color:var(--red);">&block;</span> <strong>channel</strong></span>
+          <span><span style="color:#66cccc;">&block;</span> <strong>PAN</strong></span>
+          <span><span style="color:#8888cc;">&block;</span> other</span>
+          <span><span style="color:var(--text);">&block;</span> CRC</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4;">
+          Slot = 12-bit wakeup timing schedule &bull;
+          PAN = 16-bit network address &bull;
+          Ch = RF operating channel
+        </div>
+      </div>
+
+      <!-- Echo-ack response frame -->
+      <div class="card" style="flex:0 0 auto;min-width:280px;">
+        <div style="font-size:15px;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;">ECHO-ACK RESPONSE (9 bytes, native 500k)</div>
+        <div style="display:flex;gap:3px;font-family:var(--mono);font-size:14px;line-height:1;">
+          <span style="background:#2a5a1a;color:var(--green);padding:5px 7px;border-radius:2px;font-weight:bold;" title="ctrl &amp; 0xF0 == 0x70">70</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:5px 7px;border-radius:2px;" title="esl_id[0]">49</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:5px 7px;border-radius:2px;" title="esl_id[1]">A1</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:5px 7px;border-radius:2px;" title="esl_id[2]">60</span>
+          <span style="background:#3a2a00;color:var(--amber);padding:5px 7px;border-radius:2px;" title="esl_id[3]">86</span>
+          <span style="background:#3a1a1a;color:var(--red);padding:5px 7px;border-radius:2px;" title="echoed session_id">70</span>
+          <span style="background:#2a5a1a;color:var(--green);padding:5px 7px;border-radius:2px;" title="status: UPLINK_OK">00</span>
+          <span style="background:#2a2a2a;color:var(--text);padding:5px 7px;border-radius:2px;" title="CRC hi">5F</span>
+          <span style="background:#2a2a2a;color:var(--text);padding:5px 7px;border-radius:2px;" title="CRC lo">67</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px;">
+          <span><span style="color:var(--green);">&block;</span> ctrl</span>
+          <span><span style="color:var(--amber);">&block;</span> esl_id</span>
+          <span><span style="color:var(--red);">&block;</span> echo seq</span>
+          <span><span style="color:var(--green);">&block;</span> status</span>
+          <span><span style="color:var(--text);">&block;</span> CRC</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.4;">
+          Sync/access code = tag&rsquo;s own <code>esl_id</code><br>
+          Not master_id &mdash; tag filters on itself
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 18: PHASE 4 & 5 — COMMISSION + CONTENT
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s18">
+    <div class="phase-label">Phases 4 &amp; 5</div>
+    <div class="slide-title">Commission &amp; Content Push</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">RF COMMISSION EXCHANGE</div>
+        <div style="font-size:17px;color:var(--text);line-height:1.6;margin-bottom:10px;">
+          Responder &rarr; Tag: ctrl=0x93 (commission)<br>
+          Tag &rarr; Responder: confirm (0x94/0x51/0x97)<br>
+          Responder &rarr; Tag: ctrl=0x51 (NVRAM commit)
+        </div>
+        <p style="font-size:17px;color:var(--text);line-height:1.5;margin-bottom:10px;">
+          ctrl=0x51 must follow within a <strong class="amber">tight ms-scale window</strong>.
+        </p>
+        <div class="divider"></div>
+        <div style="font-size:16px;color:var(--text);line-height:1.6;">
+          The 0x93 frame carries the tag&rsquo;s new network identity:
+        </div>
+        <dl class="kv" style="font-size:16px;margin-top:4px;">
+          <dt style="color:#66cccc;">PAN ID</dt><dd>12-bit network address &mdash; <strong class="green">attacker-chosen</strong></dd>
+          <dt style="color:#cc88ee;">Slot</dt><dd>wakeup timing schedule &mdash; when the tag listens</dd>
+          <dt style="color:var(--red);">Channel</dt><dd>RF operating frequency for all future comms</dd>
+        </dl>
+        <div style="font-size:16px;color:var(--text);margin-top:6px;line-height:1.5;">
+          Tag commits all three to NVRAM and triggers display refresh.
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">CONTENT PUSH</div>
+        <ul style="list-style:none;font-size:17px;line-height:1.7;color:var(--text);">
+          <li><span class="green">&check;</span> Flash framebuffer encoder (confirmed round-trip)</li>
+          <li><span class="green">&check;</span> EPDV3DataFrame RF builder + decoder</li>
+          <li><span class="green">&check;</span> Live display refresh confirmed post-commission</li>
+          <li><span class="amber">?</span> RF content delivery mechanism</li>
+          <li><span class="amber">?</span> Multi-fragment sequencing protocol</li>
+        </ul>
+        <div class="divider"></div>
+        <p style="font-size:17px;color:var(--text);line-height:1.5;">
+          Arbitrary image data on any in-range ESL &mdash; pricing, branding, messaging &mdash;
+          <strong class="green">all controlled by the attacker</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 19: IMPACT
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s19">
+    <div class="eyebrow">So What</div>
+    <div class="slide-title">Impact</div>
+
+    <div class="stat-row" style="margin-bottom:20px;">
+      <div class="stat">
+        <div class="stat-num red">0</div>
+        <div class="stat-label">Auth on any NFC command</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num red">0</div>
+        <div class="stat-label">Signature checks on firmware OTA</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num red">0</div>
+        <div class="stat-label">Auth on the management API</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-red">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--red);margin-bottom:8px;">PHYSICAL PROXIMITY</div>
+        <ul style="list-style:none;font-size:18px;line-height:1.7;color:var(--text);">
+          <li>&gt; Arbitrary price/content on any ESL within NFC range</li>
+          <li>&gt; Commission tags to attacker-controlled AP</li>
+          <li>&gt; Flash custom firmware via RF &mdash; persistent compromise</li>
+          <li>&gt; No per-tag auth &mdash; default key on all 8 tested tags</li>
+        </ul>
+      </div>
+      <div class="card card-amber">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--amber);margin-bottom:8px;">NETWORK</div>
+        <ul style="list-style:none;font-size:18px;line-height:1.7;color:var(--text);">
+          <li>&gt; Unauth API &rarr; push content to any connected label</li>
+          <li>&gt; Path traversal &rarr; arbitrary file write as root</li>
+          <li>&gt; Firmware push &rarr; persistent supply-chain compromise</li>
+          <li>&gt; All credentials hardcoded/default across deployments</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 20: LIVE DEMO
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s20">
+    <div class="phase-label">Live Demo</div>
+    <div class="slide-title">Shelf to SDR</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">WHAT YOU&rsquo;LL SEE</div>
+        <ol style="list-style:none;font-size:19px;line-height:2;color:var(--text);">
+          <li><strong class="amber">1.</strong> Flipper Zero taps the tag (NFC provisioning)</li>
+          <li><strong class="amber">2.</strong> NFC bind triggers RF uplink bursts</li>
+          <li><strong class="amber">3.</strong> Responder catches &amp; echo-acks within 51 ms</li>
+          <li><strong class="amber">4.</strong> Commission exchange &mdash; tag accepts our PAN</li>
+          <li><strong class="amber">5.</strong> Display refresh &mdash; we own the price tag</li>
+        </ol>
+      </div>
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;">LAB SETUP</div>
+        <dl class="kv" style="font-size:19px;">
+          <dt>NFC</dt><dd>Flipper Zero + APDU Runner scripts</dd>
+          <dt>RF</dt><dd>TLSR8359 dev board, custom responder</dd>
+          <dt>Monitor</dt><dd>RP2040 PIO + UART @ 921600 baud</dd>
+          <dt>Target</dt><dd>Hanshow Nebular Pro-266Q-N</dd>
+        </dl>
+        <div class="divider"></div>
+        <div style="font-size:17px;color:var(--muted);line-height:1.5;">
+          All running against our own lab hardware &mdash; no store networks involved
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 21: SOURCES / CITATIONS
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s21">
+    <div class="eyebrow">Acknowledgments</div>
+    <div class="slide-title">Sources &amp; Research Citations</div>
+
+    <div class="two-col" style="max-width:900px;align-items:start;">
+      <div class="card card-green">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;">KEY CONTRIBUTORS</div>
+        <ul style="list-style:none;font-size:19px;line-height:2;color:var(--text);">
+          <li><strong class="green">0xD34D</strong> &mdash; RF sniffer source, gen_fsk responder, wire-format corrections, RX payload length fix, commission timing analysis</li>
+          <li><strong class="green">deadsy</strong> &mdash; AP hardware documentation, HS-C09978 product manual</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size:18px;letter-spacing:0.15em;color:var(--muted);margin-bottom:8px;">PUBLIC SOURCES</div>
+        <ul style="list-style:none;font-size:17px;line-height:1.8;color:var(--text);">
+          <li>&gt; FCC filings: 2AHB5-C09959, 2AYMH-HSC09978</li>
+          <li>&gt; FCC.IO &mdash; FCC ID search engine</li>
+          <li>&gt; Docker Hub: <code>stemlatamcl/hanshow</code></li>
+          <li>&gt; Telink TLSR8359 SDK &amp; documentation</li>
+          <li>&gt; Hanshow PriSmart 1.3.2 API manual</li>
+          <li>&gt; HS-C09978 Product Manual v1.0.0</li>
+          <li>&gt; SensingDocs &mdash; third-party ESL integration guide</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card-amber" style="max-width:900px;margin-top:12px;text-align:center;">
+      <span style="font-size:18px;color:var(--text);">
+        All testing performed against our own isolated lab hardware.
+        No production systems were accessed or disrupted during this research.
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SLIDE 22: QUESTIONS
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="slide" id="s22">
+    <div class="eyebrow">Let&rsquo;s Talk</div>
+    <div class="big-title glow" style="margin-bottom:16px;text-align:center;">Questions?</div>
+    <div class="green" style="font-size:clamp(20px,2.6vw,28px);margin-bottom:24px;text-align:center;letter-spacing:0.04em;">
+      Every Price Has a Frequency
+    </div>
+
+    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center;margin-bottom:16px;">
+      <span class="green" style="font-size:24px;font-weight:bold;">Groktar</span>
+      <span class="muted" style="font-size:22px;">&amp;</span>
+      <span class="green" style="font-size:24px;font-weight:bold;">0xD34D</span>
+    </div>
+
+    <div class="dim" style="font-size:19px;letter-spacing:0.06em;">
+      SSH 2026 &nbsp;&middot;&nbsp; HushCon 12/12/2026
+    </div>
+  </div>
+
+</div><!-- /#deck -->
+
+<div id="progress-bar"></div>
+<div id="counter">1 / 21</div>
+<div id="nav-hint">&larr; &rarr; or click to navigate</div>
+
+<div id="prev-zone" onclick="go(-1)"></div>
+<div id="next-zone" onclick="go(1)"></div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total  = slides.length;
+  let current  = 0;
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progress-bar').style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  function go(dir) { show(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); show(0); }
+    if (e.key === 'End')  { e.preventDefault(); show(total - 1); }
+  });
+
+  let tx = null;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    tx = null;
+  });
+
+  document.getElementById('progress-bar').style.width = (1 / total * 100) + '%';
+</script>
+
+</body>
+</html>
